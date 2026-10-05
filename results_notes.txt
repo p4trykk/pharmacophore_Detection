@@ -1,0 +1,81 @@
+1. Tabela: matches
+- znalezione pary hotspotów hsEH oraz odpowiadającą jej kombinację z AChE 
+id : identyfikator pary kombinacji
+k : liczba hotspotów w kombinacji (4,5,6)
+combo_a : id kombinacji hsEH
+combo_b : id kombinacji AChE
+score_a : ocena kombinacji hsEH (avg[evidence]*100) w zakresie 0-100%
+score_B : ocena kombinacji AChE -||- 
+joint_score : wspólna ocena pary (mniejsza z wartości score_a i score_b)
+rmsd : średni błąd dopasowania wszystkich odpowiadających hotspotów (A)
+max_error : największa różnica odległości pomiędzy pojedynczą parą odpowiadających sobie hotspotów (A)
+exact : zgodność geometryczna (1 - idealne dopasowanie nie przekraczające epsilon=0.000001A, 0 - brak idealnego dopasowania)
+
+
+2. Tabela: combos
+- pojedyncze kombinacje hotspotów
+id : identyfikator kombinacji
+target : przynależność do zestawu (A - hsEH, B - AChE)
+k : liczba hotspotów w kombinacji (4,5,6)
+ids : indeksy hotspotów tworzących kombinacje
+diameter : średnica całej kombinacji (największa odległość między dwoma najbardziej oddalonymi hotspotami) (A)
+mst : suma długości krawędzi grafu MST (A) 
+max_link : długość najdłuższej pojedynczej krawędzi MST (A)
+score : ocena kombinacji 
+signature : lista wszystkich odległości między hotspotami wchodzącymi w skład kombinacji (sortowane rosnąco) (A)
+
+
+3. Tabela: nodes
+- zbiór wszystkich hotspotów (hsEH + AChE)
+target : przynależność do zestawu (A - hsEH, B - AChE)
+idx : indeks hotspotów wewnątrz kombinacji
+data : informacje o hotspotach (id, xyz, probes, sources, weight, evidence, quality, labels)
+ > data/id : identyfikator hotspotu (info o sondzie + id punktu)
+ > data/xyz : współrzędne hotspotu (A)
+ > data/probes : typ kosolwentu
+ > data/sources : ogólnie dane z plików wejściowych 
+ > data/weight : waga hotspotu (gęstość)
+ > data/evidence : wyliczany score dla konkretnego kosolwentu i białka
+ > data/quality : score w oparciu o normalizowana wagę (aktualnie nieużywany) 
+ > data/labels :  skróty nazw kosolwentów
+
+
+4. Tabela: alignments
+- informacje o dopasowaniu przestrzennym (trnasformacja kombinacji AChE na hsEH)
+id : identyfikator dopasowania
+combo_a : id kombinacji hsEH
+combo_b : id kombinacji AChE
+data : parametry dopasowania (mapping, R_B_to_A, t_B_to_A_A, rmsd_A, max_error_A, coordinate_rank, orientation_underdetermined, common_options, n_label_assignments, exact_within_epsilon)
+ > data/mapping : wskazuje hotspot AChE odpowiadający hotspotowi z hsEH podczas dopasowania
+ > data/R_B_to_A : macierz obrotu (dopasowanie współrzędnych AChE do hsEH)
+ > data/t_B_to_A_A : wektor przesunięcia (A)
+ > data/rmsd_A : średni błąd dopasowania wszystkich odpowiadających hotspotów (A)
+ > data/max_error_A : największa różnica odległości pomiędzy pojedynczą parą odpowiadających sobie hotspotów (A)
+ > data/coordinate_rank : typ układu kombinacji (0 - punkty pokrywające się [nie występują ze względu na ograniczenia przestrzenne], 1 - współlinowy, 2 - płaski, 3 - przestrzenny)
+ > data/orientation_underdetermined : true jeśli coordinate_rank < 2 inaczej przypisuje false
+ > data/common_options : nazwy pokrywających się kosolwentów
+ > data/n_label_assignments : liczba mozliwych zestawów wspólnych etykiet dla konkretnego dopasowania (aktualnie zawsze równe 1 bo jeszcze nie są uwzględniane cechy)
+ > data/exact_within_epsilon : true jeśli dopasowanie rmsd + max_error mieszczą się w zakresie tolerancji (0,000001A)
+
+
+Ograniczenia geometryczne (do ew. modyfikacji):
+- sizes: [4,5,6]
+- min_distance: 1.5A (minimalna odległość każdej pary węzłów)
+- same_probe: 2.0A (bardziej rygorystyczne ograniczenie odległości dla węzłów pochodzących z tej samej sondy)
+- max_diameter: 18.0A (największa odległość między dwoma punktami)
+- max_mst: 30.0A (max suma krawędzi po mst)
+- max_link: 12.0A (najdłuższa krawędź)
+- rmsd (A): 0.75 (max rmsd po dopasowaniu)
+- max_error (A): 1.0 (max błąd pojedynczej pary)
+- exact_epsilon (A): 0,000001 (zakres tolerancji błędu)
+
+Cechy chemiczne wyznaczone przez RDKit:
+acetamid (ACA)={HBD:1, HBA:1, HYD:0, ARO:0}, 
+acetonitryl (ACN)={HBD:0, HBA:1, HYD:0, ARO:0}, 
+benzen (BNZ)={HBD:0, HBA:0, HYD:1, ARO:1}, 
+DMSO(DMS)={HBD:0, HBA:1, HYD:0, ARO:0}, 
+imidazol (IMD)={HBD:1, HBA:1, HYD:0, ARO:1}, 
+izopropanol (IPR)={HBD:1, HBA:1, HYD:1, ARO:0}, 
+metanol (MEO)={HBD:1, HBA:1, HYD:0, ARO:0}, 
+fenol (PHN)={HBD:1, HBA:1, HYD:1, ARO:1}, 
+urea (URE)={HBD:1, HBA:1, HYD:0, ARO:0}
